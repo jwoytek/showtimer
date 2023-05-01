@@ -1,0 +1,17 @@
+web:
+  #bind: 0.0.0.0
+  port: 8080
+osc:
+  #bind: 0.0.0.0
+  port: 8000
+timers:
+  - name: Act 1
+    key: act1
+    type: CountUp
+  - name: Intermission
+    key: intermission
+    type: CountDown
+    duration: 1m
+  - name: Act 2
+    key: act2
+    type: CountUp

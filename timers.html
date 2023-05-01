@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Timers</title>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <meta name="theme-color" content="#712cf9">
+    </head>
+    <body>
+        <script type="text/javascript">
+            let updateIntervals = new Array()
+        </script>
+
+        <div class="container text-center" style="max-width: 720px;">
+        {{range $idx, $element := .}}
+            <div class="row my-2 p-1 justify-content-center border border-primary-subtle">
+                <div class="row border-bottom p-1 bg-body-secondary">
+                    <!-- <div class="col-8 offset-2"> -->
+                        <span class="fs-4">{{$element.Name}}</span>
+                    <!-- </div>
+                    <div class="col-1"> 
+                        <span class="py-1 px-2 bg-danger border border-light rounded-circle"></span>
+                    </div> -->
+                </div>
+                <div class="row p-2 bg-body-tertiary">
+                    <div class="col-1">
+                        <span class="display-1 font-monospace" id="{{$element.Key}}_hms_indicator">{{$element.HMSIndicator}}</span>
+                    </div>
+                    <div class="col-10">
+                        <span class="display-1 font-monospace" id="{{$element.Key}}_hms">{{$element.HMS}}</span>
+                    </div>
+                </div>
+            </div>
+        <script type="text/javascript">
+            updateIntervals.push(setInterval(()=>{
+                fetchTimer("{{$element.Key}}", "{{$element.Key}}_hms", "{{$element.Key}}_hms_indicator")
+            }, 1000))
+        </script>
+        {{end}}
+        </div>
+        <script src="/static/js/bootstrap.bundle.min.js"></script>
+        <script type="text/javascript">
+
+            fetchTimer = (name, timerElementId, indicatorElementId) => {
+                let url = `/timer/${name}`;
+                const controller = new AbortController()
+                const timeoutId = setTimeout(() => controller.abort(), 3000)
+                controller.signal.addEventListener("abort", () => {
+                    console.log("timeout -- abort updates")
+                    updateIntervals.forEach((value) => clearInterval(value))
+                })
+                fetch(url, {method: 'get', signal: controller.signal}).then(resp => resp.json()).then( data => {
+                    if(data.over) {
+                        document.getElementById(timerElementId).classList.add("text-danger")
+                        document.getElementById(indicatorElementId).classList.add("text-danger")
+                    } else {
+                        document.getElementById(timerElementId).classList.remove("text-danger")
+                        document.getElementById(indicatorElementId).classList.remove("text-danger")
+                    }
+                    document.getElementById(timerElementId).innerHTML = `${data.hms}`
+                    document.getElementById(indicatorElementId).innerHTML = `${data.hms_indicator}`
+                    clearTimeout(timeoutId)
+                });
+            };
+        </script>
+    </body>
+</html>
