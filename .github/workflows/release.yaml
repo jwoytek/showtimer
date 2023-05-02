@@ -31,9 +31,9 @@ jobs:
           GOOSARCH=${{matrix.goosarch}}
           GOOS=${GOOSARCH%/*}
           GOARCH=${GOOSARCH#*/}
-          BINARY_NAME=${{github.repository}}-$GOOS-$GOARCH
+          BINARY_NAME=showtimer-$GOOS-$GOARCH
           echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
-          echo "RELEASE_DIR=${{github.repository}}/$GOOS/$GOARCH" >> $GITHUB_ENV
+          echo "RELEASE_DIR=$GOOS/$GOARCH/showtimer" >> $GITHUB_ENV
           echo "GOOS=$GOOS" >> $GITHUB_ENV
           echo "GOARCH=$GOARCH" >> $GITHUB_ENV
       - name: Build
@@ -51,7 +51,7 @@ jobs:
           cp LICENSE $RELEASE_DIR/
           cp README.md $RELEASE_DIR/
           cd $RELEASE_DIR/..
-          zip -r $BINARY_NAME.zip ./${{github.repository}}
+          zip -r $BINARY_NAME.zip ./showtimer
       - name: Release with Notes
         uses: softprops/action-gh-release@v1
         with:
