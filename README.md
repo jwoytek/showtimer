@@ -16,6 +16,9 @@ architecture:
 - linux/arm64 for: Linux on Apple Silicon or other ARM CPU
 
 ### Setup and Use:
+Currently, most setup and startup of the program must be done from the
+command line (Windows CMD.EXE, MacOS Terminal, etc.). 
+
 1. unzip the bundle in a useful location, like your home directory
 2. Edit the `showtimer.yaml` file with your favorite editor
 3. Set the port values for the webserver and OSC (or note the defaults)
@@ -41,6 +44,22 @@ architecture:
    The message should be in the format `/timer/start [key]` where "[key]" is
    the key you entered in the config file. You should see the timer start
    to run in your web browser. 
+
+### MACOS USERS PLEASE READ
+MacOS does some smart things and will by default not let you run random
+things you download from the internet. This is usually good. However, if
+you are trying to run `showtimer`, you'll get a dialog saying that Apple
+cannot check the program for malicious software. Your only choices are to
+quit or show the program in the Finder. 
+
+In order to get past this warning and tell MacOS that you think the program
+is safe to run, click the option to show the program in the finder. Then
+right-click (or option-click or two-finger-click) the `showtimer` binary, 
+and select "Open" from the menu. MacOS will ask you if you are sure you 
+want to do this. If you are sure, click OK and the program will run and
+immediately exit because it couldn't find the configuration file. This is
+OK. Close the window where the program started, and now you can start it
+from a regular terminal window. 
 
 ## Available OSC commands
 All commands take a `key` argument, which is the key for the timer in the
