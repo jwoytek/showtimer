@@ -33,19 +33,30 @@ jobs:
           GOARCH=${GOOSARCH#*/}
           BINARY_NAME=${{github.repository}}-$GOOS-$GOARCH
           echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+          echo "RELEASE_DIR=${{github.repository}}/$GOOS/$GOARCH" >> $GITHUB_ENV
           echo "GOOS=$GOOS" >> $GITHUB_ENV
           echo "GOARCH=$GOARCH" >> $GITHUB_ENV
       - name: Build
         run: |
-          go build -o "$BINARY_NAME" -v
+          mkdir -p $RELEASE_DIR
+          go build -o "$RELEASE_DIR/" -v
       - name: Release Notes
         run:
           git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+      - name: Create release archive
+        run: |
+          cp -rp static $RELEASE_DIR/static
+          cp -rp showtimer.yaml $RELEASE_DIR/
+          cp -rp timers.html $RELEASE_DIR/
+          cp LICENSE $RELEASE_DIR/
+          cp README.md $RELEASE_DIR/
+          cd $RELEASE_DIR/..
+          zip -r $BINARY_NAME.zip ./${{github.repository}}
       - name: Release with Notes
         uses: softprops/action-gh-release@v1
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
           draft: true
-          files: ${{env.BINARY_NAME}}
+          files: ${{env.RELEASE_DIR}}/../${{env.BINARY_NAME}}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
