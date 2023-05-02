@@ -12,6 +12,8 @@ jobs:
     name: Create release
     runs-on: 'ubuntu-latest'
     needs: test
+    permissions:
+      contents: write
     strategy:
       matrix:
         goosarch:
