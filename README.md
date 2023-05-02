@@ -1,4 +1,5 @@
 # Showtimer
+[![tests](https://github.com/jwoytek/showtimer/actions/workflows/test.yaml/badge.svg)](https://github.com/jwoytek/showtimer/actions/workflows/test.yaml)
 ## Introduction
 Welcome to Showtimer--a simple, web-based, osc-triggered timekeeper
 application for use in live productions. 
