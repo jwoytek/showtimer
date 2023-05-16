@@ -4,6 +4,7 @@ web:
 osc:
   #bind: 0.0.0.0
   port: 8000
+darkmode: false
 timers:
   - name: Act 1
     key: act1

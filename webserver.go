@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
@@ -19,7 +20,10 @@ type timerValue struct {
 	Running      bool   `json:"running"`
 }
 
-func runWebServer(bindAddr string, bindPort int, ctx context.Context) {
+var dm bool
+
+func runWebServer(bindAddr string, bindPort int, darkmode bool, ctx context.Context) {
+	dm = darkmode
 	staticServer := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", staticServer))
 	http.HandleFunc("/timer/", timerValueHandler)
@@ -43,7 +47,11 @@ func runWebServer(bindAddr string, bindPort int, ctx context.Context) {
 }
 
 func webHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("timers.html")
+	files := []string{filepath.Join("templates", "base.html")}
+	if dm {
+		files = append(files, filepath.Join("templates", "darkmode.html"))
+	}
+	t, err := template.ParseFiles(files...)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -21,7 +21,8 @@ Currently, most setup and startup of the program must be done from the
 command line (Windows CMD.EXE, MacOS Terminal, etc.). 
 
 1. unzip the bundle in a useful location, like your home directory
-2. Edit the `showtimer.yaml` file with your favorite editor
+2. Copy `showtimer_example.yaml` to a name of your choice. The default
+   is `showtimer.yaml`. Edit the file with your favorite editor.
 3. Set the port values for the webserver and OSC (or note the defaults)
 4. Optionally, if you would like to only listen on a certain interface,
    enter the IP address of that interface. This is probably not common.
