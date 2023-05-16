@@ -38,9 +38,10 @@ type timerConfig struct {
 }
 
 type config struct {
-	Osc    map[string]string
-	Web    map[string]string
-	Timers []timerConfig
+	Osc      map[string]string
+	Web      map[string]string
+	Darkmode bool
+	Timers   []timerConfig
 }
 
 func main() {
@@ -123,7 +124,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to parse port for web server from '%s': %s", Config.Web["port"], err)
 	}
-	runWebServer(Config.Web["bind"], webPort, ctx)
+	runWebServer(Config.Web["bind"], webPort, Config.Darkmode, ctx)
 
 	oscPort, err := strconv.Atoi(Config.Osc["port"])
 	if err != nil {
