@@ -13,6 +13,9 @@ import (
 	"github.com/spf13/viper"
 )
 
+var IPAddrs []string
+var Messages [3]string
+
 type TimerMap map[string]*Timer
 
 var Timers TimerMap //map[string]*Timer
@@ -30,6 +33,14 @@ func TimersAsSlice(ts TimerMap) []*Timer {
 	return tSlice
 }
 
+func AddMessage(msg string) {
+	now := time.Now()
+	isoTime := now.Format("Jan _2 15:04:05")
+	Messages[0] = Messages[1]
+	Messages[1] = Messages[2]
+	Messages[2] = isoTime + ": " + msg
+}
+
 type timerConfig struct {
 	Key      string
 	Name     string
@@ -38,10 +49,11 @@ type timerConfig struct {
 }
 
 type config struct {
-	Osc      map[string]string
-	Web      map[string]string
-	Darkmode bool
-	Timers   []timerConfig
+	Osc        map[string]string
+	Web        map[string]string
+	Darkmode   bool
+	Production string
+	Timers     []timerConfig
 }
 
 func main() {
@@ -57,6 +69,14 @@ func main() {
 		signal.Stop(signalChan)
 		cancel()
 	}()
+
+	var err error
+	IPAddrs, err = findMyIPs()
+	AddMessage("Showtimer initialized")
+
+	if err != nil {
+		log.Fatalf("Unable to get my IP addresses: %s", err)
+	}
 
 	// start the signal handler
 	go func() {
@@ -83,7 +103,7 @@ func main() {
 	var configFile = flag.String("config", "showtimer.yaml", "name of configuration file to read")
 	flag.Parse()
 	viper.SetConfigFile(*configFile)
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Error reading config file: %s", err)
 	}
@@ -124,7 +144,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to parse port for web server from '%s': %s", Config.Web["port"], err)
 	}
-	runWebServer(Config.Web["bind"], webPort, Config.Darkmode, ctx)
+	runWebServer(Config.Web["bind"], webPort, Config.Darkmode, Config.Production, ctx)
 
 	oscPort, err := strconv.Atoi(Config.Osc["port"])
 	if err != nil {

@@ -4,9 +4,10 @@
 {{end}}
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Timers</title>
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/showtimer.css" rel="stylesheet">
         <meta name="theme-color" content="#712cf9">
     </head>
     <body>
@@ -14,55 +15,149 @@
             let updateIntervals = new Array()
         </script>
 
-        <div class="container text-center" style="max-width: 720px;">
-        {{range $idx, $element := .}}
-            <div class="row my-2 p-1 justify-content-center border border-primary-subtle">
-                <div class="row border-bottom p-1 bg-body-secondary">
-                    <!-- <div class="col-8 offset-2"> -->
-                        <span class="fs-4">{{$element.Name}}</span>
-                    <!-- </div>
-                    <div class="col-1"> 
-                        <span class="py-1 px-2 bg-danger border border-light rounded-circle"></span>
-                    </div> -->
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </symbol>
+        </svg>
+        <div class="alert alert-danger d-none d-flex justify-content-center align-items-center" role="alert" id="noconn-alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+            <div>
+                <b>Connection lost! Attempting to reconnect...</b>
+            </div>
+        </div>
+
+        <nav class="navbar bg-body-tertiary align-items-center">
+            <div class="container-fluid justify-content-center text-center" onclick="location.reload();">
+                <span>Showtimer - {{.Production}}</span>
+            </div>
+        </nav>
+
+        <main role="main" class="container my-auto h-100 align-items-center" style="max-width: 720px;">
+        {{range $idx, $element := .Timers}}
+            <div class="row my-2 p-1 text-center justify-content-center border border-primary-subtle">
+                <div class="row border-bottom p-1 bg-body-secondary" id="{{$element.Key}}_name">
+                    <span class="fs-4">{{$element.Name}}</span>
                 </div>
-                <div class="row p-2 bg-body-tertiary">
-                    <div class="col-1">
-                        <span class="display-1 font-monospace" id="{{$element.Key}}_hms_indicator">{{$element.HMSIndicator}}</span>
+                <div class="row bg-body-tertiary justify-content-center">
+                    <div class="row justify-content-center">
+                        <div class="col-1">
+                            <span class="display-1 font-monospace" id="{{$element.Key}}_hms_indicator">{{$element.HMSIndicator}}</span>
+                        </div>
+                        <div class="col-10">
+                            <span class="display-1 font-monospace" id="{{$element.Key}}_hms">{{$element.HMS}}</span>
+                        </div>
+                        <div class="col-1">
+                        </div>
                     </div>
-                    <div class="col-10">
-                        <span class="display-1 font-monospace" id="{{$element.Key}}_hms">{{$element.HMS}}</span>
+                    <!--
+                    <div class="row p-0 justify-content-center">
+                        <span class="fs-6 text-secondary" id="{{$element.Key}}_running">[{{if $element.Running}}running{{else}}stopped{{end}}]</span>
                     </div>
+                    -->
                 </div>
             </div>
         <script type="text/javascript">
             updateIntervals.push(setInterval(()=>{
-                fetchTimer("{{$element.Key}}", "{{$element.Key}}_hms", "{{$element.Key}}_hms_indicator")
-            }, 1000))
+                fetchTimer("{{$element.Key}}", "{{$element.Key}}_hms", "{{$element.Key}}_hms_indicator", "{{$element.Key}}_name")
+            }, 1000));
+            updateIntervals.push(setInterval(()=>{
+                fetchMessages()
+            }, 3000));
         </script>
         {{end}}
-        </div>
+            <div class="row my-2 p-1 justify-content-center border border-primary-subtle">
+                <div class="row text-center border-bottom p-1 bg-body-secondary">
+                        <span class="fs-4">Messages</span>
+                </div>
+                <div class="row p-2 text-left text-wrap bg-body-tertiary">
+                    {{range $idx, $element := .Messages}}
+                    <span class="fs-6 font-monospace" id="{{$idx}}_message">{{$element}}</span>
+                    {{end}}
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container align-items-center justify-content-center text-center">
+                <span class="text-muted">My IP: {{.IPAddr}} | Server: {{.Hostname}}</span>
+            </div>
+        </footer>
+
+
+
         <script src="/static/js/bootstrap.bundle.min.js"></script>
         <script type="text/javascript">
+            
+            reloadAfterFail = () => {
+                fetch('/', {method: 'get'}).then(resp => {
+                    // success... reload for realz
+                    alert = document.getElementById("noconn-alert");
+                    alert.classList.add("d-none");
+                    location.reload();
+                }).catch((e) => {
+                    // do nothing and try again on our interval
+                });
+            };
 
-            fetchTimer = (name, timerElementId, indicatorElementId) => {
+            fetchTimer = (name, timerElementId, indicatorElementId, nameElementId) => {
                 let url = `/timer/${name}`;
-                const controller = new AbortController()
-                const timeoutId = setTimeout(() => controller.abort(), 3000)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
                 controller.signal.addEventListener("abort", () => {
-                    console.log("timeout -- abort updates")
-                    updateIntervals.forEach((value) => clearInterval(value))
+                    console.log("timeout -- abort updates");
+                    //updateIntervals.forEach((value) => clearInterval(value));
+                    clearInterval(updateIntervals[0]);
                 })
                 fetch(url, {method: 'get', signal: controller.signal}).then(resp => resp.json()).then( data => {
                     if(data.over) {
-                        document.getElementById(timerElementId).classList.add("text-danger")
-                        document.getElementById(indicatorElementId).classList.add("text-danger")
+                        document.getElementById(timerElementId).classList.add("text-danger");
+                        document.getElementById(indicatorElementId).classList.add("text-danger");
                     } else {
-                        document.getElementById(timerElementId).classList.remove("text-danger")
-                        document.getElementById(indicatorElementId).classList.remove("text-danger")
+                        document.getElementById(timerElementId).classList.remove("text-danger");
+                        document.getElementById(indicatorElementId).classList.remove("text-danger");
                     }
-                    document.getElementById(timerElementId).innerHTML = `${data.hms}`
-                    document.getElementById(indicatorElementId).innerHTML = `${data.hms_indicator}`
-                    clearTimeout(timeoutId)
+                    document.getElementById(timerElementId).innerHTML = `${data.hms}`;
+                    document.getElementById(indicatorElementId).innerHTML = `${data.hms_indicator}`;
+                    //running = data.running ? "[running]" : "[stopped]";
+                    //document.getElementById(runningElementId).innerHTML = running;
+                    if(data.running) {
+                        document.getElementById(nameElementId).classList.add("bg-success-subtle");
+                    } else {
+                        document.getElementById(nameElementId).classList.remove("bg-success-subtle");
+                    }
+                    clearTimeout(timeoutId);
+                }).catch((e) => { 
+                    console.log('Error requesting timer updates: ' + e.message); 
+                }).finally(() => {
+                });
+            };
+
+            fetchMessages = () => {
+                let url = `/messages`;
+                const controller = new AbortController()
+                const timeoutId = setTimeout(() => controller.abort(), 3000)
+                controller.signal.addEventListener("abort", () => {
+                    console.log("timeout -- abort message updates");
+                    alert = document.getElementById("noconn-alert");
+                    alert.classList.remove("d-none");
+                    //clearInterval(updateIntervals[1]);
+                    // remove all other intervals, just in case
+                    updateIntervals.forEach((value) => clearInterval(value));
+                    updateIntervals.push(setInterval(()=>{
+                        reloadAfterFail()
+                    }, 3000))
+                })
+                fetch(url, {method: 'get', signal: controller.signal}).then(resp => resp.json()).then( data => {
+                    if(data != null) {
+                        for(let i = 0; i < data.length; i++) {
+                            document.getElementById(`${i}_message`).innerHTML = `${data[i]}`;
+                        }
+                    }
+                    clearTimeout(timeoutId);
+                }).catch((e) => { 
+                    console.log('Error requesting message updates: ' + e.message); 
+                }).finally(() => {
                 });
             };
         </script>
