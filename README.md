@@ -73,12 +73,16 @@ configuration file.
     * Stop the specified timer
 * `/timer/reset [key]`
     * Reset the specified timer
+* `/timer/addmsg "[msg]"`
+    * Add a message to the message box
 
 ## Available API commands
 The web API can be used to retrieve timer values directly to use them in 
 other places.
 * `GET /timer/[key]`
     * Returns a JSON structure with timer data for the specified timer
+* `GET /messages`
+    * Returns the most recent messages in the message list
 
 ## Background
 Showtimer arose from an offhand request from one of the finest techies
@@ -106,3 +110,10 @@ though it would be nice to get there eventually.
 
 "Showtimer" was born, written in Go, with a simple configuration 
 file.
+
+## Additional Bits
+The [rpi](rpi/) directory contains a [README](rpi/README.md) and files
+related to running Showtimer as a service on a Raspberry Pi, and running
+Raspberry Pis with attached displays as kiosks. There is also information
+about using GPO pins for controlling indicator lights, and a simple OSC
+server for driving those pins via OSC.
