@@ -49,7 +49,7 @@ jobs:
         run: |
           cp -rp static $RELEASE_DIR/static
           cp -rp showtimer_example.yaml $RELEASE_DIR/
-          cp -rp timers.html $RELEASE_DIR/
+          cp -rp templates $RELEASE_DIR/templates
           cp LICENSE $RELEASE_DIR/
           cp README.md $RELEASE_DIR/
           cd $RELEASE_DIR/..
