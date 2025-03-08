@@ -1,0 +1,14 @@
+[Unit]
+Description=GPIO Xmit
+After=network-online.target
+
+[Service]
+ExecStart=/home/showtimer/src/showtimer/rpi/gpio-xmit.py
+#KillMode=process
+#Restart=on-failure
+Type=simple
+User=showtimer
+WorkingDirectory=/home/showtimer/src/showtimer/rpi
+
+[Install]
+WantedBy=multi-user.target

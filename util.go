@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net"
+	"time"
 )
 
 func findMyIPs() ([]string, error) {
@@ -45,4 +46,12 @@ func findMyIPs() ([]string, error) {
 		return ips, errors.New("are you connected to the network?")
 	}
 	return ips, nil
+}
+
+func delayUntilNextSecond() {
+	now := time.Now()
+	// Compute the next whole second.
+	// If we are already at the top of the second, then time.Until returns 0.
+	next := now.Truncate(time.Second).Add(time.Second)
+	time.Sleep(time.Until(next))
 }

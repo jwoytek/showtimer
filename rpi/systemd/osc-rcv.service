@@ -1,0 +1,14 @@
+[Unit]
+Description=OSC Rcv
+After=network-online.target
+
+[Service]
+ExecStart=/home/showtimer/showtimer/osc-rcv.py
+#KillMode=process
+#Restart=on-failure
+Type=simple
+User=showtimer
+WorkingDirectory=/home/showtimer/showtimer
+
+[Install]
+WantedBy=multi-user.target

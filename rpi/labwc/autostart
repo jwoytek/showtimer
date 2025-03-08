@@ -1,0 +1,1 @@
+/usr/bin/lwrespawn chromium-browser http://showtimer-main.local:8080/ --kiosk --start-maximized --noerrdialogs --disable-infobars --no-first-run --ozone-platform=wayland
