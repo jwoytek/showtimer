@@ -117,3 +117,5 @@ related to running Showtimer as a service on a Raspberry Pi, and running
 Raspberry Pis with attached displays as kiosks. There is also information
 about using GPO pins for controlling indicator lights, and a simple OSC
 server for driving those pins via OSC.
+
+TEST
