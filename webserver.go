@@ -106,25 +106,39 @@ func timerValueHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid parameters; name not specified", http.StatusBadRequest)
 		return
 	}
-	t, ok := Timers[path[1]]
-	if !ok {
-		log.Printf("timer name '%s' not found", path[1])
-		http.Error(w, "timer name not found", http.StatusNotFound)
-		return
+	var timersToOutput []*Timer
+	if path[1] == "all" {
+		// return just a list of timer names
+		timersToOutput = TimersAsSlice(Timers)
+		//timerNames := make([]string, len(timersOrdered))
+		//for i, t := range timersOrdered {
+		//	timerNames[i] = t.Name
+		//}
+	} else {
+		t, ok := Timers[path[1]]
+		if !ok {
+			log.Printf("timer name '%s' not found", path[1])
+			http.Error(w, "timer name not found", http.StatusNotFound)
+			return
+		}
+		timersToOutput = append(timersToOutput, t)
 	}
 
 	// only send updates on full second increments
 	delayUntilNextSecond()
-
+	var tList = make(map[string]timerValue, len(timersToOutput))
 	var tv timerValue
-	tv.HMS = t.HMS()
-	tv.HMSIndicator = t.HMSIndicator()
-	tv.Seconds = t.Seconds()
-	tv.Over = t.Over()
-	tv.Type = t.Type()
-	tv.Running = t.Running()
+	for _, t := range timersToOutput {
+		tv.HMS = t.HMS()
+		tv.HMSIndicator = t.HMSIndicator()
+		tv.Seconds = t.Seconds()
+		tv.Over = t.Over()
+		tv.Type = t.Type()
+		tv.Running = t.Running()
+		tList[t.Name] = tv
+	}
 
-	err := out.Encode(tv)
+	err := out.Encode(tList)
 	if err != nil {
 		log.Fatalf("Unable to encode response: %s", err)
 		http.Error(w, "Unable to encode response", http.StatusInternalServerError)
