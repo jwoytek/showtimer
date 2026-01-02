@@ -20,6 +20,7 @@ type timerValue struct {
 	Over         bool   `json:"over,omitempty"`
 	Type         int    `json:"type"`
 	Running      bool   `json:"running"`
+	Name         string `json:"name"`
 }
 
 var dm bool
@@ -126,16 +127,17 @@ func timerValueHandler(w http.ResponseWriter, r *http.Request) {
 
 	// only send updates on full second increments
 	delayUntilNextSecond()
-	var tList = make(map[string]timerValue, len(timersToOutput))
+	var tList = make([]timerValue, len(timersToOutput))
 	var tv timerValue
-	for _, t := range timersToOutput {
+	for i, t := range timersToOutput {
 		tv.HMS = t.HMS()
 		tv.HMSIndicator = t.HMSIndicator()
 		tv.Seconds = t.Seconds()
 		tv.Over = t.Over()
 		tv.Type = t.Type()
 		tv.Running = t.Running()
-		tList[t.Name] = tv
+		tv.Name = t.Name
+		tList[i] = tv
 	}
 
 	err := out.Encode(tList)
