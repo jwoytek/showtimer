@@ -48,6 +48,7 @@ func oscHandleTimerStart(msg *osc.Message) {
 	t, ok := Timers[name]
 	if !ok {
 		log.Printf("Asked to start unknown timer: %s", name)
+		return
 	}
 	log.Printf("OSC timer start for %s", name)
 	t.Start()
@@ -62,6 +63,7 @@ func oscHandleTimerStop(msg *osc.Message) {
 	t, ok := Timers[name]
 	if !ok {
 		log.Printf("Asked to stop unknown timer: %s", name)
+		return
 	}
 	log.Printf("OSC timer stop for %s", name)
 	t.Stop()
@@ -76,6 +78,7 @@ func oscHandleTimerReset(msg *osc.Message) {
 	t, ok := Timers[name]
 	if !ok {
 		log.Printf("Asked to reset unknown timer: %s", name)
+		return
 	}
 	log.Printf("OSC timer reset for %s", name)
 	t.Reset()
