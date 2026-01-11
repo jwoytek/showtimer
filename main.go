@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -19,6 +20,39 @@ var Messages [3]string
 type TimerMap map[string]*Timer
 
 var Timers TimerMap //map[string]*Timer
+
+func (timers TimerMap) Stop(name string) error {
+	t, ok := timers[name]
+	if !ok {
+		log.Printf("Asked to stop unknown timer: %s", name)
+		return fmt.Errorf("Asked to stop unknown timer: %s", name)
+	}
+	log.Printf("Stopping timer %s", name)
+	t.Stop()
+	return nil
+}
+
+func (timers TimerMap) Reset(name string) error {
+	t, ok := timers[name]
+	if !ok {
+		log.Printf("Asked to reset unknown timer: %s", name)
+		return fmt.Errorf("Asked to reset unknown timer: %s", name)
+	}
+	log.Printf("Resetting timer %s", name)
+	t.Reset()
+	return nil
+}
+
+func (timers TimerMap) Start(name string) error {
+	t, ok := timers[name]
+	if !ok {
+		log.Printf("Asked to start unknown timer: %s", name)
+		return fmt.Errorf("Asked to start unknown timer: %s", name)
+	}
+	log.Printf("Starting timer %s", name)
+	t.Start()
+	return nil
+}
 
 // for some things, we want the timers in order
 func TimersAsSlice(ts TimerMap) []*Timer {
