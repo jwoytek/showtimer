@@ -13,6 +13,7 @@ func runOSCServer(bindAddr string, bindPort int, ctx context.Context) {
 	oscDispatcher.AddMsgHandler("/timer/start", oscHandleTimerStart)
 	oscDispatcher.AddMsgHandler("/timer/stop", oscHandleTimerStop)
 	oscDispatcher.AddMsgHandler("/timer/reset", oscHandleTimerReset)
+	oscDispatcher.AddMsgHandler("/timer/stop_and_reset", oscHandleTimerStopAndReset)
 	oscDispatcher.AddMsgHandler("/timer/addmsg", oscHandleAddMsg)
 	if bindAddr == "" {
 		// binding to all addresses
@@ -45,13 +46,11 @@ func oscHandleTimerStart(msg *osc.Message) {
 		return
 	}
 	name := msg.Arguments[0].(string)
-	t, ok := Timers[name]
-	if !ok {
-		log.Printf("Asked to start unknown timer: %s", name)
+	err := Timers.Start(name)
+	if err != nil {
+		log.Print(err)
 		return
 	}
-	log.Printf("OSC timer start for %s", name)
-	t.Start()
 }
 
 func oscHandleTimerStop(msg *osc.Message) {
@@ -60,13 +59,11 @@ func oscHandleTimerStop(msg *osc.Message) {
 		return
 	}
 	name := msg.Arguments[0].(string)
-	t, ok := Timers[name]
-	if !ok {
-		log.Printf("Asked to stop unknown timer: %s", name)
+	err := Timers.Stop(name)
+	if err != nil {
+		log.Print(err)
 		return
 	}
-	log.Printf("OSC timer stop for %s", name)
-	t.Stop()
 }
 
 func oscHandleTimerReset(msg *osc.Message) {
@@ -75,13 +72,29 @@ func oscHandleTimerReset(msg *osc.Message) {
 		return
 	}
 	name := msg.Arguments[0].(string)
-	t, ok := Timers[name]
-	if !ok {
-		log.Printf("Asked to reset unknown timer: %s", name)
+	err := Timers.Reset(name)
+	if err != nil {
+		log.Print(err)
 		return
 	}
-	log.Printf("OSC timer reset for %s", name)
-	t.Reset()
+}
+
+func oscHandleTimerStopAndReset(msg *osc.Message) {
+	if msg.CountArguments() != 1 {
+		log.Printf("Bad OSC /timer/stop_and_reset message: %s", msg)
+		return
+	}
+	name := msg.Arguments[0].(string)
+	err := Timers.Stop(name)
+	if err != nil {
+		log.Printf("Stop and reset failed: %s", err)
+		return
+	}
+	err = Timers.Reset(name)
+	if err != nil {
+		log.Printf("Stop and reset failed: %s", err)
+		return
+	}
 }
 
 func oscHandleAddMsg(msg *osc.Message) {
