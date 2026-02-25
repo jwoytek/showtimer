@@ -110,18 +110,18 @@
                     clearInterval(updateIntervals[0]);
                 })
                 fetch(url, {method: 'get', signal: controller.signal}).then(resp => resp.json()).then( data => {
-                    if(data.over) {
+                    if(data[0].over) {
                         document.getElementById(timerElementId).classList.add("text-danger");
                         document.getElementById(indicatorElementId).classList.add("text-danger");
                     } else {
                         document.getElementById(timerElementId).classList.remove("text-danger");
                         document.getElementById(indicatorElementId).classList.remove("text-danger");
                     }
-                    document.getElementById(timerElementId).innerHTML = `${data.hms}`;
-                    document.getElementById(indicatorElementId).innerHTML = `${data.hms_indicator}`;
+                    document.getElementById(timerElementId).innerHTML = `${data[0].hms}`;
+                    document.getElementById(indicatorElementId).innerHTML = `${data[0].hms_indicator}`;
                     //running = data.running ? "[running]" : "[stopped]";
                     //document.getElementById(runningElementId).innerHTML = running;
-                    if(data.running) {
+                    if(data[0].running) {
                         document.getElementById(nameElementId).classList.add("bg-success-subtle");
                     } else {
                         document.getElementById(nameElementId).classList.remove("bg-success-subtle");
