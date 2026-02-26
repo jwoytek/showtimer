@@ -10,7 +10,7 @@ import (
 
 func runOSCServer(bindAddr string, bindPort int, ctx context.Context) {
 	oscDispatcher := osc.NewStandardDispatcher()
-	oscDispatcher.AddMsgHandler("/timer/stop_and_reset", oscHandleTimerStopAndReset)
+	oscDispatcher.AddMsgHandler("/timer/fullreset", oscHandleTimerStopAndReset)
 	oscDispatcher.AddMsgHandler("/timer/stop", oscHandleTimerStop)
 	oscDispatcher.AddMsgHandler("/timer/reset", oscHandleTimerReset)
 	oscDispatcher.AddMsgHandler("/timer/start", oscHandleTimerStart)
