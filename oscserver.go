@@ -10,10 +10,10 @@ import (
 
 func runOSCServer(bindAddr string, bindPort int, ctx context.Context) {
 	oscDispatcher := osc.NewStandardDispatcher()
-	oscDispatcher.AddMsgHandler("/timer/start", oscHandleTimerStart)
+	oscDispatcher.AddMsgHandler("/timer/stop_and_reset", oscHandleTimerStopAndReset)
 	oscDispatcher.AddMsgHandler("/timer/stop", oscHandleTimerStop)
 	oscDispatcher.AddMsgHandler("/timer/reset", oscHandleTimerReset)
-	oscDispatcher.AddMsgHandler("/timer/stop_and_reset", oscHandleTimerStopAndReset)
+	oscDispatcher.AddMsgHandler("/timer/start", oscHandleTimerStart)
 	oscDispatcher.AddMsgHandler("/timer/addmsg", oscHandleAddMsg)
 	if bindAddr == "" {
 		// binding to all addresses
@@ -58,6 +58,7 @@ func oscHandleTimerStop(msg *osc.Message) {
 		log.Printf("Bad OSC /timer/stop message: %s", msg)
 		return
 	}
+	log.Printf("got stop")
 	name := msg.Arguments[0].(string)
 	err := Timers.Stop(name)
 	if err != nil {
@@ -71,6 +72,7 @@ func oscHandleTimerReset(msg *osc.Message) {
 		log.Printf("Bad OSC /timer/reset message: %s", msg)
 		return
 	}
+	log.Printf("got reset")
 	name := msg.Arguments[0].(string)
 	err := Timers.Reset(name)
 	if err != nil {
@@ -84,6 +86,7 @@ func oscHandleTimerStopAndReset(msg *osc.Message) {
 		log.Printf("Bad OSC /timer/stop_and_reset message: %s", msg)
 		return
 	}
+	log.Printf("got stop and reset")
 	name := msg.Arguments[0].(string)
 	err := Timers.Stop(name)
 	if err != nil {
